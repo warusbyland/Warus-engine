@@ -21,7 +21,7 @@ constexpr int CHUNK_HEIGHT = 256;
 constexpr int SUBCHUNK_HEIGHT = 16;
 constexpr int SUBCHUNK_COUNT = CHUNK_HEIGHT / SUBCHUNK_HEIGHT;
 
-using BlockID = uint16_t;
+using BlockID = uint16_t; // Real blocks are BlockID, Local blocks are uint16_t
 class Block {
 public:
     uint16_t id; // Local Palette index, NOT real BlockID
@@ -64,14 +64,18 @@ public:
 
     void initChunk(int x, int y, int z);
 
-    inline bool isAir(int x, int y, int z) { return palette.getBlockID(blocks[index(x, y, z)].id) == 0; }
+    // Access blocks
+    inline Block getBlock(int x, int y, int z) { return blocks[index(x, y, z)]; }
+    inline uint16_t getLocalBlockID(int x, int y, int z) { return getBlock(x, y, z).id; }
+    
+    inline void setBlock(int x, int y, int z, BlockID id) { blocks[index(x, y, z)].id = palette.getOrAdd(id); }
+    inline BlockID getBlockID(int x, int y, int z) const { return palette.getBlockID(blocks[index(x, y, z)].id); }
+
+    inline bool isAir(int x, int y, int z) { return palette.getBlockID(blocks[(z * CHUNK_WIDTH + y) * CHUNK_WIDTH + x].id) == 0; }
     inline bool isChunkAir() { return palette.size() == 1 && palette.index_to_id[0] == 0; }
     inline bool isChunkSolid() { return palette.size() == 1 && palette.index_to_id[0] == 1; }
 
-    // Access blocks
-    inline void setBlock(int x, int y, int z, BlockID id) { blocks[index(x, y, z)].id = palette.getOrAdd(id); }
-    inline Block getBlock(int x, int y, int z) { return blocks[index(x, y, z)].id; }
-    inline BlockID getBlockID(int x, int y, int z) const { return palette.getBlockID(blocks[index(x, y, z)].id); }
+    const BlockPalette& getPallete() const { return palette; }
 private:
     BlockPalette palette;
     std::array<Block, TOTAL_BLOCKS> blocks;
@@ -90,7 +94,7 @@ public:
     Chunk(glm::ivec2 pos);
     Chunk(int x, int z);
     
-    SubChunk* Chunk::getSubChunk(int y);
+    SubChunk* getSubChunk(int y);
     void buildMesh(int y, SubChunk* px, SubChunk* nx, SubChunk* pz, SubChunk* nz);
     void draw(Shader& shaderProgram,Camera& camera);
 private:

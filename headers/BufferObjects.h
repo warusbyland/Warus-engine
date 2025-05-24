@@ -6,11 +6,11 @@
 
 struct Vertex {
     glm::vec3 position;
-    glm::vec3 normal;
+    uint8_t normalIndex;
     glm::vec2 texCoords;
     uint16_t blockTypeID;
 
-    Vertex(const glm::vec3& pos, const glm::vec3 &aNormal, const glm::vec2& txtCords, uint16_t blockType) : position(pos), normal(aNormal), texCoords(txtCords), blockTypeID(blockType) {}
+    Vertex(const glm::vec3& pos, uint8_t aNormalIndex, const glm::vec2& txtCords, uint16_t blockType) : position(pos), normalIndex(aNormalIndex), texCoords(txtCords), blockTypeID(blockType) {}
 };
 
 class VBO
@@ -56,10 +56,13 @@ public:
         glGenVertexArrays(1, &ID);
     }
 
-    void LinkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset)
+    void LinkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset, bool isInteger = false)
     {
         VBO.Bind();
-        glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
+        if (isInteger)
+            glVertexAttribIPointer(layout, numComponents, type, stride, offset);
+        else
+            glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
         glEnableVertexAttribArray(layout);
         VBO.Unbind();
     }

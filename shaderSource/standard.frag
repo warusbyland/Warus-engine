@@ -3,7 +3,6 @@ out vec4 FragColor;
   
 in vec2 TexCoord;
 flat in uint blockTypeID;
-//in float texIndex;
 
 uniform sampler2D tex0;
 

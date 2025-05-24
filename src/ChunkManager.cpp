@@ -12,6 +12,8 @@ void initializeNoiseObject() {
 // ------------------------------------------------------------------------
 // Chunk Coords parameters
 void SubChunk::initChunk(int cx, int cy, int cz) {
+    blocks.fill({0}); //Initialize chunk
+
     // Calculate base world position
     int cwx = cx * CHUNK_WIDTH, cwy = cy * SUBCHUNK_HEIGHT, cwz = cz * CHUNK_WIDTH;
     mesh.setWorldPosition(cwx, cwy, cwz); // Send to mesh for draw()
@@ -36,17 +38,18 @@ void SubChunk::initChunk(int cx, int cy, int cz) {
         else palette.getOrAdd(0);
         blocks.fill({0});
     }
+    std::cout << palette.size();
 }
 
 
 //                                 CHUNKS
 // ------------------------------------------------------------------------
 Chunk::Chunk(glm::ivec2 pos) : positionXZ(pos) {
-    for (int cy = 0; cy < SUBCHUNK_COUNT; cy++) 
-        subChunks[cy].initChunk(pos.x, cy, pos.y);
+    for (int y = 0; y < SUBCHUNK_COUNT; y++) 
+        subChunks[y].initChunk(pos.x, y, pos.y);
 }
 Chunk::Chunk(int x, int z) : positionXZ(glm::ivec2(x, z)) {
-    for (int y = 1; y < SUBCHUNK_COUNT - 1; y++) 
+    for (int y = 0; y < SUBCHUNK_COUNT; y++) 
         subChunks[y].initChunk(x, y, z);
 }
 

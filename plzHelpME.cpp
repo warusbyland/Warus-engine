@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -9,6 +10,21 @@
 
 #include "ChunkManager.h"
 #include "World.h"
+
+// Function Performance timer
+// Usage: measureTime([&]() { func(arg); });
+template <typename Func, typename... Args>
+int measureTime(Func&& func, Args&&... args) {
+    auto start = std::chrono::high_resolution_clock::now();
+
+    std::forward<Func>(func)(std::forward<Args>(args)...);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
+    std::cout << "Execution Time: " << duration.count() << " microseconds\n";
+    return duration.count();
+}
 
 // Global var
 unsigned int SCR_WIDTH = 1400;
@@ -78,8 +94,20 @@ int main()
 
     // Chunking system
     // ------------------------------------------------------------------------
-    World world;
-    world.loadPerimeterRadius(6);
+    // SubChunk subChunk;
+    // subChunk.initChunk(0, 0, 0);
+    // int total = 0;
+    // for (int i = 0; i < 10; ++i) {
+    //     total += measureTime([&]() { subChunk.mesh.buildMesh(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr); });
+    // }
+
+    // std::cout << "average: " << total / 10 << " microseconds\n";
+
+    Chunk chunk(0, 0);
+    for (int i = 0; i < 7; ++i) {
+        measureTime([&]() { chunk.buildMesh(i, nullptr, nullptr, nullptr, nullptr); });
+    }
+
 
 
 
@@ -102,8 +130,9 @@ int main()
 
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        world.render(shaderProgram, player);
+
+        // subChunk.mesh.draw(shaderProgram, player);
+        chunk.draw(shaderProgram, player);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
